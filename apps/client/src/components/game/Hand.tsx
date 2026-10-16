@@ -99,7 +99,7 @@ export const Hand: React.FC<HandProps> = ({
       {/* Label bar */}
       <div className="flex items-center justify-between px-4 mb-1 text-xs sm:text-sm text-slate-400">
         <span className="font-semibold text-slate-300">
-          Your Hand&nbsp;
+          Your Hand{' '}
           <span className="text-slate-500">
             ({cards.length} {cards.length === 1 ? 'card' : 'cards'})
           </span>

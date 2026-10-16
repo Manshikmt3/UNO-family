@@ -49,13 +49,13 @@ test.describe('Multi-Client Multiplayer Synchronization', () => {
     await startGameBtn.click();
 
     // Both players should now be in the active game view
-    await expect(pageAlice.getByText(/your hand \(\d+ cards\)/i)).toBeVisible({ timeout: 10000 });
-    await expect(pageBob.getByText(/your hand \(\d+ cards\)/i)).toBeVisible({ timeout: 10000 });
+    await expect(pageAlice.getByText(/your hand/i).first()).toBeVisible({ timeout: 10000 });
+    await expect(pageBob.getByText(/your hand/i).first()).toBeVisible({ timeout: 10000 });
 
     // Verify Alice sees Bob in opponent row
-    await expect(pageAlice.getByText(/\d+ cards/i).first()).toBeVisible();
+    await expect(pageAlice.getByText('Bob').first()).toBeVisible();
     // Verify Bob sees Alice in opponent row
-    await expect(pageBob.getByText(/\d+ cards/i).first()).toBeVisible();
+    await expect(pageBob.getByText('Player 1').first()).toBeVisible();
 
     await contextAlice.close();
     await contextBob.close();

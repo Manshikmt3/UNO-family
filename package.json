@@ -12,6 +12,7 @@
     "dev": "concurrently -n \"server,client\" -c \"magenta,cyan\" \"npm run dev:server\" \"npm run dev:client\"",
     "dev:server": "npm run dev --workspace=@uno-arena/server",
     "dev:client": "npm run dev --workspace=@uno-arena/client",
+    "share": "npx localtunnel --port 5173",
     "build": "npm run build --workspace=@uno-arena/shared && npm run build --workspace=@uno-arena/game-engine && npm run build --workspace=@uno-arena/server && npm run build --workspace=@uno-arena/client",
     "test": "npm run test --workspaces --if-present",
     "test:engine": "npm run test --workspace=@uno-arena/game-engine",

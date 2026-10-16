@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: uno-arena
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: node apps/server/dist/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: CORS_ORIGIN
+        value: "*"

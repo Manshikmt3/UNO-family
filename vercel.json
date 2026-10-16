@@ -1,41 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "services": {
-    "client": {
-      "root": "apps/client",
-      "framework": "vite",
-      "buildCommand": "npm run build",
-      "outputDirectory": "dist"
-    },
-    "server": {
-      "root": "apps/server",
-      "framework": "express"
-    }
-  },
+  "framework": "vite",
+  "buildCommand": "npm run build --workspace=@uno-arena/shared && npm run build --workspace=@uno-arena/game-engine && npm run build --workspace=@uno-arena/client",
+  "outputDirectory": "apps/client/dist",
   "rewrites": [
     {
-      "source": "/socket.io/(.*)",
-      "destination": {
-        "service": "server"
-      }
-    },
-    {
-      "source": "/api/(.*)",
-      "destination": {
-        "service": "server"
-      }
-    },
-    {
-      "source": "/health",
-      "destination": {
-        "service": "server"
-      }
-    },
-    {
       "source": "/(.*)",
-      "destination": {
-        "service": "client"
-      }
+      "destination": "/index.html"
     }
   ],
   "headers": [

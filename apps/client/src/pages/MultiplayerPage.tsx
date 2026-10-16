@@ -25,6 +25,9 @@ export const MultiplayerPage: React.FC = () => {
 
   const {
     isConnected,
+    isConnecting,
+    connectionError,
+    retryConnection,
     room,
     playerId,
     gameState,
@@ -91,23 +94,52 @@ export const MultiplayerPage: React.FC = () => {
       <div className="min-h-[calc(100vh-60px)] felt-radial flex flex-col items-center justify-center p-4 text-center">
         <div className="p-8 bg-slate-900/90 border border-slate-800 rounded-3xl max-w-sm w-full shadow-2xl">
           <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/40">
-            {isConnected ? <Wifi className="w-6 h-6 text-emerald-400" /> : <WifiOff className="w-6 h-6 text-red-400" />}
+            {isConnected ? (
+              <Wifi className="w-6 h-6 text-emerald-400" />
+            ) : isConnecting ? (
+              <RotateCw className="w-6 h-6 text-amber-400 animate-spin" />
+            ) : (
+              <WifiOff className="w-6 h-6 text-red-400" />
+            )}
           </div>
           <h3 className="text-xl font-black text-white uppercase tracking-tight mb-2">
             Multiplayer Room
           </h3>
-          <p className="text-xs text-slate-400 mb-6">
+          <p className="text-xs text-slate-400 mb-4">
             {isConnected
               ? 'Join or create a private room to start playing online.'
-              : 'Connecting to UNO Arena server...'}
+              : isConnecting
+              ? 'Connecting to UNO Arena server...'
+              : connectionError || 'Could not reach the UNO multiplayer server.'}
           </p>
-          <button
-            type="button"
-            onClick={() => navigate('/')}
-            className="w-full py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-bold rounded-xl text-xs uppercase tracking-wider"
-          >
-            Go to Lobby
-          </button>
+
+          {!isConnected && !isConnecting && (
+            <p className="text-[11px] text-amber-400/80 bg-amber-500/10 border border-amber-500/20 rounded-xl p-2.5 mb-5 text-left">
+              💡 <strong>Connecting across cities?</strong> If your backend is hosted on a free cloud service (like Render), it sleeps after inactivity and takes ~30–45 seconds to wake up.
+            </p>
+          )}
+
+          <div className="flex flex-col gap-2">
+            {!isConnected && (
+              <button
+                type="button"
+                onClick={retryConnection}
+                disabled={isConnecting}
+                className="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50"
+              >
+                <RotateCw className={`w-3.5 h-3.5 ${isConnecting ? 'animate-spin' : ''}`} />
+                {isConnecting ? 'Connecting...' : 'Retry Connection'}
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => navigate('/')}
+              className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs uppercase tracking-wider transition-all"
+            >
+              Go to Lobby
+            </button>
+          </div>
         </div>
       </div>
     );

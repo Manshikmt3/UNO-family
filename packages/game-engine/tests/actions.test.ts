@@ -161,6 +161,8 @@ describe('Actions and Reducers', () => {
     const state = createInitialGameState(players2);
     state.currentTurnIndex = 0;
     state.activeColor = 'red';
+    state.pendingAction = null;
+    state.topDiscard = { id: 'discard_red', type: 'number', color: 'red', value: 5 };
 
     // Alice holds a red card AND WD4
     const wd4: Card = { id: 'wd4_test', type: 'wild4' };
@@ -186,6 +188,8 @@ describe('Actions and Reducers', () => {
     const state = createInitialGameState(players2);
     state.currentTurnIndex = 0;
     state.activeColor = 'red';
+    state.pendingAction = null;
+    state.topDiscard = { id: 'discard_red', type: 'number', color: 'red', value: 5 };
 
     // Alice holds NO red cards, only blue and WD4 -> innocent!
     const wd4: Card = { id: 'wd4_test', type: 'wild4' };

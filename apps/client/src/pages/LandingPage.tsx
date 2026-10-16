@@ -22,6 +22,10 @@ export const LandingPage: React.FC = () => {
   const [joinCode, setJoinCode] = useState('');
   const [activeTab, setActiveTab] = useState<'ai' | 'multiplayer'>('ai');
 
+  React.useEffect(() => {
+    initSocket();
+  }, [initSocket]);
+
   const handleStartAIGame = () => {
     startNewGame(playerName, avatar, aiOpponentCount, preferredDifficulty);
     navigate('/play/ai');

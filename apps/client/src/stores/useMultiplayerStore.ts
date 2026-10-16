@@ -11,26 +11,25 @@ import {
   ServerToClientEvents,
 } from '@uno-arena/shared';
 
-// In production on Vercel, connect to the same origin (empty string) so the
-// /socket.io/* rewrite proxies traffic to the server service automatically.
-// In local dev, fall back to the standalone server on port 4000.
-const SERVER_URL = import.meta.env.VITE_SERVER_URL ||
-  (import.meta.env.PROD ? '' : 'http://localhost:4000');
+const rawServerUrl = import.meta.env.VITE_SERVER_URL || '';
+const SERVER_URL = rawServerUrl ? rawServerUrl.trim().replace(/\/$/, '') : '';
 
 interface MultiplayerState {
   socket: Socket<ServerToClientEvents, ClientToServerEvents> | null;
   isConnected: boolean;
+  isConnecting: boolean;
+  connectionError: string | null;
   room: RoomDetails | null;
   playerId: string | null;
   reconnectToken: string | null;
   gameState: PublicGameState | null;
   myHand: Card[];
   errorToast: string | null;
-  isConnecting: boolean;
   chatMessages: ChatMessage[];
   unreadChatCount: number;
 
   initSocket: () => void;
+  retryConnection: () => void;
   createRoom: (playerName: string, avatar: string, settings?: Partial<RoomSettings>) => void;
   joinRoom: (roomCode: string, playerName: string, avatar: string) => void;
   reconnect: (roomId: string, playerId: string, token: string) => void;
@@ -55,29 +54,38 @@ interface MultiplayerState {
 export const useMultiplayerStore = create<MultiplayerState>((set, get) => ({
   socket: null,
   isConnected: false,
+  isConnecting: false,
+  connectionError: null,
   room: null,
   playerId: null,
   reconnectToken: null,
   gameState: null,
   myHand: [],
   errorToast: null,
-  isConnecting: false,
   chatMessages: [],
   unreadChatCount: 0,
 
   initSocket: () => {
-    if (get().socket) return;
+    if (get().socket) {
+      if (!get().socket?.connected) {
+        get().socket?.connect();
+      }
+      return;
+    }
 
-    set({ isConnecting: true });
-    const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(SERVER_URL, {
+    set({ isConnecting: true, connectionError: null });
+    const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(SERVER_URL || undefined, {
       transports: ['websocket', 'polling'],
       autoConnect: true,
       reconnection: true,
-      reconnectionAttempts: 5,
+      reconnectionAttempts: 15,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      timeout: 20000,
     });
 
     socket.on('connect', () => {
-      set({ isConnected: true, isConnecting: false });
+      set({ isConnected: true, isConnecting: false, connectionError: null });
 
       // Try automatic reconnect if saved session exists
       const savedSession = sessionStorage.getItem('uno_reconnect_session');
@@ -91,7 +99,15 @@ export const useMultiplayerStore = create<MultiplayerState>((set, get) => ({
       }
     });
 
-    socket.on('disconnect', () => {
+    socket.on('connect_error', (err) => {
+      set({
+        isConnected: false,
+        isConnecting: false,
+        connectionError: err.message || 'Unable to connect to game server',
+      });
+    });
+
+    socket.on('disconnect', (reason) => {
       set({ isConnected: false });
     });
 
@@ -147,6 +163,18 @@ export const useMultiplayerStore = create<MultiplayerState>((set, get) => ({
     });
 
     set({ socket });
+  },
+
+  retryConnection: () => {
+    const { socket } = get();
+    set({ isConnecting: true, connectionError: null });
+    if (socket) {
+      if (!socket.connected) {
+        socket.connect();
+      }
+    } else {
+      get().initSocket();
+    }
   },
 
   createRoom: (playerName, avatar, settings) => {

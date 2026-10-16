@@ -66,8 +66,8 @@ export function chooseAIMove(
     (p) => p.id !== aiPlayerId && p.cardCount === 1 && !p.hasCalledUno
   );
   if (catchTarget) {
-    // Hard AI always catches, medium 70% chance, easy 30% chance
-    const catchChance = difficulty === 'hard' ? 0.95 : difficulty === 'medium' ? 0.7 : 0.3;
+    // Hard AI always catches (1.0), medium 70% chance, easy 30% chance
+    const catchChance = difficulty === 'hard' ? 1.0 : difficulty === 'medium' ? 0.7 : 0.3;
     if (Math.random() < catchChance) {
       return {
         type: 'catch_uno',
